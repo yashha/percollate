@@ -11,6 +11,7 @@ const slugify = require('slugify');
 const Readability = require('./vendor/readability');
 const pkg = require('./package.json');
 const uuid = require('uuid/v1');
+const TurndownService = require('turndown');
 let Epub = require('epub-gen');
 
 const spinner = ora();
@@ -347,6 +348,55 @@ async function bundleHtml(items, options) {
 }
 
 /*
+	Bundle the HTML files into a Markdown
+	--------------------------------
+ */
+async function bundleMd(items, options) {
+	const stylesheet = resolve(options.style || './templates/default.css');
+	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
+
+	const html = nunjucks.renderString(
+		fs.readFileSync(
+			resolve(options.template || './templates/markdown.html'),
+			'utf8'
+		),
+		{
+			items,
+			style,
+			stylesheet // deprecated
+		}
+	);
+
+	spinner.start('Saving HTML');
+
+	const turndownService = new TurndownService();
+	const markdown = turndownService.turndown(html);
+
+	/*
+		When no output path is present,
+		produce the file name from the web page title
+		(if a single page was sent as argument),
+		or a timestamped file (for the moment)
+		in case we're bundling many web pages.
+	 */
+	const output_path =
+		options.output ||
+		(items.length === 1
+			? `${slugify(items[0].title || 'Untitled page')}.md`
+			: `percollate-${Date.now()}.md`);
+
+	fs.writeFile(output_path, markdown, function(err) {
+		if (err) {
+			return console.log(err);
+		}
+
+		// console.log("The file was saved!");
+	});
+
+	spinner.succeed(`Saved HTML: ${output_path}`);
+}
+
+/*
 	Generate PDF
  */
 async function pdf(urls, options) {
@@ -403,4 +453,23 @@ async function html(urls, options) {
 	}
 }
 
-module.exports = { configure, pdf, epub, html };
+/*
+	Generate Markdown
+ */
+async function md(urls, options) {
+	if (!urls.length) return;
+	let items = [];
+	for (let url of urls) {
+		let item = await cleanup(url, options);
+		if (options.individual) {
+			await bundleMd([item], options);
+		} else {
+			items.push(item);
+		}
+	}
+	if (!options.individual) {
+		await bundleMd(items, options);
+	}
+}
+
+module.exports = { configure, pdf, epub, html, md };
