@@ -2,7 +2,7 @@
 const program = require('commander');
 const pkg = require('./package.json');
 
-const { configure, pdf, epub, html } = require('.');
+const { configure, pdf, epub, html, md } = require('.');
 
 /*
 	Some setup
@@ -41,6 +41,10 @@ with_common_options(program.command('epub [urls...]'))
 with_common_options(program.command('html [urls...]'))
 	.description('Bundle web pages as a HTML file')
 	.action(html);
+
+with_common_options(program.command('md [urls...]'))
+	.description('Bundle web pages as a Markdown file')
+	.action(md);
 
 // with_common_options(
 // 	program.command('', 'default command', { isDefault: true })
