@@ -1,5 +1,21 @@
 # Percollate Changelog
 
+### 0.6.0
+
+Enhancement: markdown generation support ([#4](https://github.com/yashha/percollate/pull/4))
+
+Chore:
+
+-   upgrade dependencies to their latest version ([#3](https://github.com/yashha/percollate/pull/3))
+-   added linting ([#5](https://github.com/yashha/percollate/pull/5))
+-   added github action ([#5](https://github.com/yashha/percollate/pull/5))
+
+### 0.5.0
+
+Enhancement: epub html and generation support ([#1](https://github.com/yashha/percollate/pull/1))
+
+Bugfix: fixed bug on converting images to figures ([#2](https://github.com/yashha/percollate/pull/2))
+
 ### 0.4.0
 
 Enhancement: expand `<details>` elements.
