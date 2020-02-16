@@ -1,5 +1,5 @@
 const srcset = require('srcset');
-const URL = require('url').URL;
+const { URL } = require('url');
 const replaceElementType = require('./replace-element-type');
 
 /* 
@@ -39,11 +39,12 @@ function imagesAtFullSize(doc) {
 		With:
 			<img src='original-size.png'/>
 	 */
-	let include_pattern = /\.(png|jpg|jpeg|gif|svg)$/i;
-	let exclude_patterns = [
+	const includePattern = /\.(png|jpg|jpeg|gif|svg)$/i;
+	const excludePatterns = [
 		/*
 			Exclude Wikipedia links to image file pages
 		*/
+		// eslint-disable-next-line no-useless-escape
 		/wiki\/File\:/,
 
 		/* 
@@ -55,13 +56,13 @@ function imagesAtFullSize(doc) {
 	];
 
 	Array.from(doc.querySelectorAll('a > img:only-child')).forEach(img => {
-		let anchor = img.parentNode;
-		let original = anchor.href;
+		const anchor = img.parentNode;
+		const original = anchor.href;
 
 		// only replace if the HREF matches an image file
 		if (
-			include_pattern.test(original) &&
-			!exclude_patterns.some(pattern => pattern.test(original))
+			includePattern.test(original) &&
+			!excludePatterns.some(pattern => pattern.test(original))
 		) {
 			img.setAttribute('src', original);
 			anchor.parentNode.replaceChild(img, anchor);
@@ -95,15 +96,16 @@ function wikipediaSpecific(doc) {
 */
 function noUselessHref(doc) {
 	Array.from(doc.querySelectorAll('a'))
-		.filter(function(el) {
-			let href = el.getAttribute('href') || '';
+		.filter(el => {
+			const href = el.getAttribute('href') || '';
 
 			// in-page anchors
+			// eslint-disable-next-line no-useless-escape
 			if (href.match(/^\#/)) {
 				return true;
 			}
 
-			let textContent = el.textContent.trim();
+			const textContent = el.textContent.trim();
 
 			// links whose text content is the HREF
 			// or which don't have any content.
@@ -150,12 +152,12 @@ function relativeToAbsoluteURIs(doc) {
  */
 function singleImgToFigure(doc) {
 	Array.from(doc.querySelectorAll('img:only-child')).forEach(image => {
-		let fig = doc.createElement('figure');
+		const fig = doc.createElement('figure');
 		fig.appendChild(image.cloneNode());
 
-		let alt = image.getAttribute('alt');
+		const alt = image.getAttribute('alt');
 		if (alt) {
-			let figcaption = doc.createElement('figcaption');
+			const figcaption = doc.createElement('figcaption');
 			figcaption.textContent = alt;
 			fig.appendChild(figcaption);
 		}

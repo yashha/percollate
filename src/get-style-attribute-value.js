@@ -1,5 +1,5 @@
-module.exports = function(css_ast, selector) {
-	let rules = css_ast.stylesheet.rules.filter(
+module.exports = function getStyleAttributeValue(cssAst, selector) {
+	const rules = cssAst.stylesheet.rules.filter(
 		rule => rule.type === 'rule' && rule.selectors.includes(selector)
 	);
 	if (!rules.length) {

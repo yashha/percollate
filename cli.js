@@ -15,7 +15,7 @@ configure();
 	---------------------------------
  */
 
-function with_common_options(cmd) {
+function withCommonOptions(cmd) {
 	return cmd
 		.option('-o, --output [output]', 'Path for the generated bundle')
 		.option('--template [template]', 'Path to custom HTML template')
@@ -29,20 +29,20 @@ function with_common_options(cmd) {
 
 program.version(pkg.version);
 
-with_common_options(program.command('pdf [urls...]'))
+withCommonOptions(program.command('pdf [urls...]'))
 	.option('--no-sandbox', 'Passed to Puppeteer')
 	.description('Bundle web pages as a PDF file')
 	.action(pdf);
 
-with_common_options(program.command('epub [urls...]'))
+withCommonOptions(program.command('epub [urls...]'))
 	.description('Bundle web pages as an EPUB file')
 	.action(epub);
 
-with_common_options(program.command('html [urls...]'))
+withCommonOptions(program.command('html [urls...]'))
 	.description('Bundle web pages as a HTML file')
 	.action(html);
 
-with_common_options(program.command('md [urls...]'))
+withCommonOptions(program.command('md [urls...]'))
 	.description('Bundle web pages as a Markdown file')
 	.action(md);
 
@@ -53,6 +53,7 @@ with_common_options(program.command('md [urls...]'))
 // });
 
 program.on('--help', () => {
+	// eslint-disable-next-line no-console
 	console.log(`
 Examples:
 

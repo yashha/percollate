@@ -8,11 +8,11 @@ const tmp = require('tmp');
 const fs = require('fs');
 const css = require('css');
 const slugify = require('slugify');
-const Readability = require('./vendor/readability');
-const pkg = require('./package.json');
 const uuid = require('uuid/v1');
 const TurndownService = require('turndown');
-let Epub = require('epub-gen');
+const Epub = require('epub-gen');
+const pkg = require('./package.json');
+const Readability = require('./vendor/readability');
 
 const spinner = ora();
 
@@ -26,14 +26,14 @@ const {
 	singleImgToFigure,
 	expandDetailsElements
 } = require('./src/enhancements');
-const get_style_attribute_value = require('./src/get-style-attribute-value');
+const getStyleAttributeValue = require('./src/get-style-attribute-value');
 
 const resolve = path =>
 	require.resolve(path, {
 		paths: [process.cwd(), __dirname]
 	});
 
-const enhancePage = function(dom) {
+function enhancePage(dom) {
 	// Note: the order of the enhancements matters!
 	[
 		ampToHtml,
@@ -47,7 +47,7 @@ const enhancePage = function(dom) {
 	].forEach(enhancement => {
 		enhancement(dom.window.document);
 	});
-};
+}
 
 function createDom({ url, content }) {
 	const dom = new JSDOM(content, { url });
@@ -128,13 +128,13 @@ async function cleanup(url, options) {
  */
 async function bundle(items, options) {
 	spinner.start('Generating temporary HTML file');
-	const temp_file = tmp.tmpNameSync({ postfix: '.html' });
+	const tempFile = tmp.tmpNameSync({ postfix: '.html' });
 
 	const stylesheet = resolve(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
-	const use_toc = options.toc && items.length > 1;
+	const useToc = options.toc && items.length > 1;
 
-	const html = nunjucks.renderString(
+	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
 			resolve(options.template || './templates/default.html'),
 			'utf8'
@@ -144,12 +144,12 @@ async function bundle(items, options) {
 			style,
 			stylesheet, // deprecated
 			options: {
-				use_toc
+				use_toc: useToc
 			}
 		}
 	);
 
-	const doc = new JSDOM(html).window.document;
+	const doc = new JSDOM(renderedHtml).window.document;
 	const headerTemplate = doc.querySelector('.header-template');
 	const footerTemplate = doc.querySelector('.footer-template');
 	const header = new JSDOM(
@@ -159,37 +159,37 @@ async function bundle(items, options) {
 		footerTemplate ? footerTemplate.innerHTML : '<span></span>'
 	).window.document;
 
-	const css_ast = css.parse(style);
+	const cssAst = css.parse(style);
 
-	const header_style = get_style_attribute_value(css_ast, '.header-template');
-	const header_div = header.querySelector('body :first-child');
+	const headerStyle = getStyleAttributeValue(cssAst, '.header-template');
+	const headerDiv = header.querySelector('body :first-child');
 
-	if (header_div && header_style) {
-		header_div.setAttribute(
+	if (headerDiv && headerStyle) {
+		headerDiv.setAttribute(
 			'style',
 			`
-				${header_style};
-				${header_div.getAttribute('style') || ''}
+				${headerStyle};
+				${headerDiv.getAttribute('style') || ''}
 			`
 		);
 	}
 
-	const footer_style = get_style_attribute_value(css_ast, '.footer-template');
-	const footer_div = footer.querySelector('body :first-child');
+	const footerStyle = getStyleAttributeValue(cssAst, '.footer-template');
+	const footerDiv = footer.querySelector('body :first-child');
 
-	if (footer_div && footer_style) {
-		footer_div.setAttribute(
+	if (footerDiv && footerStyle) {
+		footerDiv.setAttribute(
 			'style',
 			`
-				${footer_style};
-				${footer_div.getAttribute('style') || ''}
+				${footerStyle};
+				${footerDiv.getAttribute('style') || ''}
 			`
 		);
 	}
 
-	fs.writeFileSync(temp_file, html);
+	fs.writeFileSync(tempFile, renderedHtml);
 
-	spinner.succeed(`Temporary HTML file: file://${temp_file}`);
+	spinner.succeed(`Temporary HTML file: file://${tempFile}`);
 
 	const browser = await pup.launch({
 		headless: true,
@@ -223,7 +223,7 @@ async function bundle(items, options) {
 		});
 	}
 
-	await page.goto(`file://${temp_file}`, { waitUntil: 'load' });
+	await page.goto(`file://${tempFile}`, { waitUntil: 'load' });
 
 	/*
 		When no output path is present,
@@ -232,14 +232,14 @@ async function bundle(items, options) {
 		or a timestamped file (for the moment)
 		in case we're bundling many web pages.
 	 */
-	const output_path =
+	const outputPath =
 		options.output ||
 		(items.length === 1
 			? `${slugify(items[0].title || 'Untitled page')}.pdf`
 			: `percollate-${Date.now()}.pdf`);
 
 	await page.pdf({
-		path: output_path,
+		path: outputPath,
 		preferCSSPageSize: true,
 		displayHeaderFooter: true,
 		headerTemplate: header.body.innerHTML,
@@ -249,7 +249,7 @@ async function bundle(items, options) {
 
 	await browser.close();
 
-	spinner.succeed(`Saved PDF: ${output_path}`);
+	spinner.succeed(`Saved PDF: ${outputPath}`);
 }
 
 /*
@@ -260,7 +260,7 @@ async function bundleEpub(items, options) {
 	const stylesheet = resolve(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
-	const html = nunjucks.renderString(
+	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
 			resolve(options.template || './templates/default.html'),
 			'utf8'
@@ -281,24 +281,25 @@ async function bundleEpub(items, options) {
 		or a timestamped file (for the moment)
 		in case we're bundling many web pages.
 	 */
-	const output_path =
+	const outputPath =
 		options.output ||
 		(items.length === 1
 			? `${slugify(items[0].title || 'Untitled page')}.epub`
 			: `percollate-${Date.now()}.epub`);
 
-	let option = {
+	const option = {
 		title: items[0].title,
 		content: [
 			{
-				data: html
+				data: renderedHtml
 			}
 		]
 	};
 
-	new Epub(option, output_path);
+	// eslint-disable-next-line no-new
+	new Epub(option, outputPath);
 
-	spinner.succeed(`Saved EPUB: ${output_path}`);
+	spinner.succeed(`Saved EPUB: ${outputPath}`);
 }
 
 /*
@@ -309,7 +310,7 @@ async function bundleHtml(items, options) {
 	const stylesheet = resolve(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
-	const html = nunjucks.renderString(
+	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
 			resolve(options.template || './templates/default.html'),
 			'utf8'
@@ -330,21 +331,20 @@ async function bundleHtml(items, options) {
 		or a timestamped file (for the moment)
 		in case we're bundling many web pages.
 	 */
-	const output_path =
+	const outputPath =
 		options.output ||
 		(items.length === 1
 			? `${slugify(items[0].title || 'Untitled page')}.html`
 			: `percollate-${Date.now()}.html`);
 
-	fs.writeFile(output_path, html, function(err) {
+	fs.writeFile(outputPath, renderedHtml, err => {
 		if (err) {
-			return console.log(err);
+			// eslint-disable-next-line no-console
+			console.log(err);
 		}
-
-		// console.log("The file was saved!");
 	});
 
-	spinner.succeed(`Saved HTML: ${output_path}`);
+	spinner.succeed(`Saved HTML: ${outputPath}`);
 }
 
 /*
@@ -355,7 +355,7 @@ async function bundleMd(items, options) {
 	const stylesheet = resolve(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
-	const html = nunjucks.renderString(
+	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
 			resolve(options.template || './templates/markdown.html'),
 			'utf8'
@@ -370,7 +370,7 @@ async function bundleMd(items, options) {
 	spinner.start('Saving HTML');
 
 	const turndownService = new TurndownService();
-	const markdown = turndownService.turndown(html);
+	const markdown = turndownService.turndown(renderedHtml);
 
 	/*
 		When no output path is present,
@@ -379,21 +379,20 @@ async function bundleMd(items, options) {
 		or a timestamped file (for the moment)
 		in case we're bundling many web pages.
 	 */
-	const output_path =
+	const outputPath =
 		options.output ||
 		(items.length === 1
 			? `${slugify(items[0].title || 'Untitled page')}.md`
 			: `percollate-${Date.now()}.md`);
 
-	fs.writeFile(output_path, markdown, function(err) {
+	fs.writeFile(outputPath, markdown, err => {
 		if (err) {
-			return console.log(err);
+			// eslint-disable-next-line no-console
+			console.log(err);
 		}
-
-		// console.log("The file was saved!");
 	});
 
-	spinner.succeed(`Saved HTML: ${output_path}`);
+	spinner.succeed(`Saved HTML: ${outputPath}`);
 }
 
 /*
@@ -401,15 +400,17 @@ async function bundleMd(items, options) {
  */
 async function pdf(urls, options) {
 	if (!urls.length) return;
-	let items = [];
-	for (let url of urls) {
-		let item = await cleanup(url, options);
-		if (options.individual) {
-			await bundle([item], options);
-		} else {
-			items.push(item);
-		}
-	}
+	const items = [];
+	await Promise.all(
+		urls.map(async url => {
+			const item = await cleanup(url, options);
+			if (options.individual) {
+				await bundle([item], options);
+			} else {
+				items.push(item);
+			}
+		})
+	);
 	if (!options.individual) {
 		await bundle(items, options);
 	}
@@ -420,15 +421,17 @@ async function pdf(urls, options) {
  */
 async function epub(urls, options) {
 	if (!urls.length) return;
-	let items = [];
-	for (let url of urls) {
-		let item = await cleanup(url, options);
-		if (options.individual) {
-			await bundleEpub([item], options);
-		} else {
-			items.push(item);
-		}
-	}
+	const items = [];
+	await Promise.all(
+		urls.map(async url => {
+			const item = await cleanup(url, options);
+			if (options.individual) {
+				await bundleEpub([item], options);
+			} else {
+				items.push(item);
+			}
+		})
+	);
 	if (!options.individual) {
 		await bundleEpub(items, options);
 	}
@@ -439,15 +442,17 @@ async function epub(urls, options) {
  */
 async function html(urls, options) {
 	if (!urls.length) return;
-	let items = [];
-	for (let url of urls) {
-		let item = await cleanup(url, options);
-		if (options.individual) {
-			await bundleHtml([item], options);
-		} else {
-			items.push(item);
-		}
-	}
+	const items = [];
+	await Promise.all(
+		urls.map(async url => {
+			const item = await cleanup(url, options);
+			if (options.individual) {
+				await bundleHtml([item], options);
+			} else {
+				items.push(item);
+			}
+		})
+	);
 	if (!options.individual) {
 		await bundleHtml(items, options);
 	}
@@ -458,15 +463,17 @@ async function html(urls, options) {
  */
 async function md(urls, options) {
 	if (!urls.length) return;
-	let items = [];
-	for (let url of urls) {
-		let item = await cleanup(url, options);
-		if (options.individual) {
-			await bundleMd([item], options);
-		} else {
-			items.push(item);
-		}
-	}
+	const items = [];
+	await Promise.all(
+		urls.map(async url => {
+			const item = await cleanup(url, options);
+			if (options.individual) {
+				await bundleMd([item], options);
+			} else {
+				items.push(item);
+			}
+		})
+	);
 	if (!options.individual) {
 		await bundleMd(items, options);
 	}
