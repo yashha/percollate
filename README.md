@@ -57,15 +57,16 @@ yarn global upgrade --latest percollate
 
 ### Available commands
 
-| Command           | What it does                                   |
-| ----------------- | ---------------------------------------------- |
-| `percollate pdf`  | Bundles one or more web pages into a PDF       |
-| `percollate epub` | Bundles one or more web pages into an EPUB     |
-| `percollate html` | Bundles one or more web pages into a HTML file |
+| Command           | What it does                                       |
+| ----------------- | -------------------------------------------------- |
+| `percollate pdf`  | Bundles one or more web pages into a PDF           |
+| `percollate epub` | Bundles one or more web pages into an EPUB         |
+| `percollate html` | Bundles one or more web pages into a HTML file     |
+| `percollate md`   | Bundles one or more web pages into a Markdown file |
 
 ### Available options
 
-The `pdf`, `epub`, and `html` commands have these options:
+The `pdf`, `epub`, `html`, and `md` commands have these options:
 
 | Option         | What it does                                                                                                   |
 | -------------- | -------------------------------------------------------------------------------------------------------------- |
