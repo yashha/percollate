@@ -126,7 +126,7 @@ async function cleanup(url, options) {
 	Bundle the HTML files into a PDF
 	--------------------------------
  */
-async function bundle(items, options) {
+async function bundlePdf(items, options) {
 	spinner.start('Generating temporary HTML file');
 	const tempFile = tmp.tmpNameSync({ postfix: '.html' });
 
@@ -395,88 +395,50 @@ async function bundleMd(items, options) {
 	spinner.succeed(`Saved HTML: ${outputPath}`);
 }
 
-/*
-	Generate PDF
- */
-async function pdf(urls, options) {
+async function bundle(urls, options, bundleFunction) {
 	if (!urls.length) return;
 	const items = [];
 	await Promise.all(
 		urls.map(async url => {
 			const item = await cleanup(url, options);
 			if (options.individual) {
-				await bundle([item], options);
+				await bundleFunction([item], options);
 			} else {
 				items.push(item);
 			}
 		})
 	);
 	if (!options.individual) {
-		await bundle(items, options);
+		await bundleFunction(items, options);
 	}
+}
+
+/*
+	Generate PDF
+ */
+async function pdf(urls, options) {
+	bundle(urls, options, bundlePdf);
 }
 
 /*
 	Generate EPUB
  */
 async function epub(urls, options) {
-	if (!urls.length) return;
-	const items = [];
-	await Promise.all(
-		urls.map(async url => {
-			const item = await cleanup(url, options);
-			if (options.individual) {
-				await bundleEpub([item], options);
-			} else {
-				items.push(item);
-			}
-		})
-	);
-	if (!options.individual) {
-		await bundleEpub(items, options);
-	}
+	bundle(urls, options, bundleEpub);
 }
 
 /*
 	Generate HTML
  */
 async function html(urls, options) {
-	if (!urls.length) return;
-	const items = [];
-	await Promise.all(
-		urls.map(async url => {
-			const item = await cleanup(url, options);
-			if (options.individual) {
-				await bundleHtml([item], options);
-			} else {
-				items.push(item);
-			}
-		})
-	);
-	if (!options.individual) {
-		await bundleHtml(items, options);
-	}
+	bundle(urls, options, bundleHtml);
 }
 
 /*
 	Generate Markdown
  */
 async function md(urls, options) {
-	if (!urls.length) return;
-	const items = [];
-	await Promise.all(
-		urls.map(async url => {
-			const item = await cleanup(url, options);
-			if (options.individual) {
-				await bundleMd([item], options);
-			} else {
-				items.push(item);
-			}
-		})
-	);
-	if (!options.individual) {
-		await bundleMd(items, options);
-	}
+	bundle(urls, options, bundleMd);
 }
 
 module.exports = { configure, pdf, epub, html, md };
