@@ -10,6 +10,7 @@ const css = require('css');
 const slugify = require('slugify');
 const uuid = require('uuid/v1');
 const TurndownService = require('turndown');
+const resolve = require('resolve');
 const Epub = require('epub-gen');
 const pkg = require('./package.json');
 const Readability = require('./vendor/readability');
@@ -28,8 +29,8 @@ const {
 } = require('./src/enhancements');
 const getStyleAttributeValue = require('./src/get-style-attribute-value');
 
-const resolve = path =>
-	require.resolve(path, {
+const resolveFile = path =>
+	resolve.sync(path, {
 		paths: [process.cwd(), __dirname]
 	});
 
@@ -130,13 +131,13 @@ async function bundle(items, options) {
 	spinner.start('Generating temporary HTML file');
 	const tempFile = tmp.tmpNameSync({ postfix: '.html' });
 
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = resolveFile(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 	const useToc = options.toc && items.length > 1;
 
 	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
-			resolve(options.template || './templates/default.html'),
+			resolveFile(options.template || './templates/default.html'),
 			'utf8'
 		),
 		{
@@ -257,12 +258,12 @@ async function bundle(items, options) {
 	--------------------------------
  */
 async function bundleEpub(items, options) {
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = resolveFile(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
 	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
-			resolve(options.template || './templates/default.html'),
+			resolveFile(options.template || './templates/default.html'),
 			'utf8'
 		),
 		{
@@ -307,12 +308,12 @@ async function bundleEpub(items, options) {
 	--------------------------------
  */
 async function bundleHtml(items, options) {
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = resolveFile(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
 	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
-			resolve(options.template || './templates/default.html'),
+			resolveFile(options.template || './templates/default.html'),
 			'utf8'
 		),
 		{
@@ -352,12 +353,12 @@ async function bundleHtml(items, options) {
 	--------------------------------
  */
 async function bundleMd(items, options) {
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = resolveFile(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
 	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
-			resolve(options.template || './templates/markdown.html'),
+			resolveFile(options.template || './templates/markdown.html'),
 			'utf8'
 		),
 		{
