@@ -1,5 +1,11 @@
 # Percollate Changelog
 
+### Unreleased
+
+Chore:
+
+-   updated deps
+
 ### 0.6.0
 
 Enhancement: markdown generation support ([#4](https://github.com/yashha/percollate/pull/4))
