@@ -8,9 +8,9 @@
 	"dependencies": {
 		"commander": "^4.1.1",
 		"css": "^2.2.4",
-		"epub-gen": "0.1.0",
-		"got": "^10.5.5",
-		"jsdom": "^16.1.0",
+		"epub-gen": "^0.1.0",
+		"got": "^10.6.0",
+		"jsdom": "^16.2.0",
 		"nunjucks": "^3.2.0",
 		"ora": "^4.0.3",
 		"puppeteer": "^2.1.1",
@@ -27,7 +27,7 @@
 		"node": ">= 8.6.0"
 	},
 	"devDependencies": {
-		"eslint": "^6.1.0",
+		"eslint": "^6.8.0",
 		"eslint-config-airbnb-base": "^14.0.0",
 		"eslint-config-prettier": "^6.10.0",
 		"eslint-plugin-import": "^2.20.1",
