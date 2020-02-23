@@ -67,5 +67,8 @@ typings/
 
 .idea/
 
-# test PDFs
+# test files
 *.pdf
+*.html
+*.epub
+*.md
