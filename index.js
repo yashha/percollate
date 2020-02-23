@@ -257,8 +257,8 @@ async function bundlePdf(items, options) {
 		path: outputPath,
 		preferCSSPageSize: true,
 		displayHeaderFooter: true,
-		// headerTemplate: header.body.innerHTML,
-		// footerTemplate: footer.body.innerHTML,
+		headerTemplate: header.body.innerHTML,
+		footerTemplate: footer.body.innerHTML,
 		printBackground: true
 	});
 
