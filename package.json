@@ -45,7 +45,7 @@
 	},
 	"scripts": {
 		"lint": "eslint *.js",
-		"test": "nyc ava"
+		"test": "nyc --reporter=text --reporter=json ava"
 	},
 	"prettier": {
 		"bracketSpacing": true,
