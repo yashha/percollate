@@ -297,7 +297,7 @@ async function bundleEpub(items, options) {
 	};
 
 	// eslint-disable-next-line no-new
-	new Epub(option, outputPath);
+	await new Epub(option, outputPath).promise;
 
 	spinner.succeed(`Saved EPUB: ${outputPath}`);
 }
@@ -417,28 +417,28 @@ async function bundle(urls, options, bundleFunction) {
 	Generate PDF
  */
 async function pdf(urls, options) {
-	bundle(urls, options, bundlePdf);
+	await bundle(urls, options, bundlePdf);
 }
 
 /*
 	Generate EPUB
  */
 async function epub(urls, options) {
-	bundle(urls, options, bundleEpub);
+	await bundle(urls, options, bundleEpub);
 }
 
 /*
 	Generate HTML
  */
 async function html(urls, options) {
-	bundle(urls, options, bundleHtml);
+	await bundle(urls, options, bundleHtml);
 }
 
 /*
 	Generate Markdown
  */
 async function md(urls, options) {
-	bundle(urls, options, bundleMd);
+	await bundle(urls, options, bundleMd);
 }
 
 module.exports = { configure, pdf, epub, html, md };
