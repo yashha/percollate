@@ -185,6 +185,8 @@ article:not(:last-of-type) {
 }
 
 .article__content p {
+	hyphens: auto;
+	text-align: justify;
 	margin: 0;
 	orphans: 3;
 	widows: 3;

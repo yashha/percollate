@@ -11,6 +11,8 @@ const slugify = require('slugify');
 const uuid = require('uuid/v1');
 const TurndownService = require('turndown');
 const Epub = require('epub-gen');
+const franc = require('franc-all');
+const iso6393 = require('iso-639-3');
 const pkg = require('./package.json');
 const Readability = require('./vendor/readability');
 
@@ -56,6 +58,17 @@ function createDom({ url, content }) {
 	dom.window.document.body.setAttribute(null, null);
 
 	return dom;
+}
+
+function textToLang(text) {
+	const franLanguage = franc(text);
+	let lang = 'en';
+	iso6393.forEach(language => {
+		if (language.iso6393 === franLanguage) {
+			lang = language.iso6391;
+		}
+	});
+	return lang;
 }
 
 /*
@@ -133,6 +146,7 @@ async function bundlePdf(items, options) {
 	const stylesheet = resolve(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 	const useToc = options.toc && items.length > 1;
+	const lang = textToLang(items[0].textContent);
 
 	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
@@ -142,6 +156,7 @@ async function bundlePdf(items, options) {
 		{
 			items,
 			style,
+			lang,
 			stylesheet, // deprecated
 			options: {
 				use_toc: useToc
@@ -242,8 +257,8 @@ async function bundlePdf(items, options) {
 		path: outputPath,
 		preferCSSPageSize: true,
 		displayHeaderFooter: true,
-		headerTemplate: header.body.innerHTML,
-		footerTemplate: footer.body.innerHTML,
+		// headerTemplate: header.body.innerHTML,
+		// footerTemplate: footer.body.innerHTML,
 		printBackground: true
 	});
 
@@ -309,6 +324,7 @@ async function bundleEpub(items, options) {
 async function bundleHtml(items, options) {
 	const stylesheet = resolve(options.style || './templates/default.css');
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
+	const lang = textToLang(items[0].textContent);
 
 	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
@@ -318,6 +334,7 @@ async function bundleHtml(items, options) {
 		{
 			items,
 			style,
+			lang,
 			stylesheet // deprecated
 		}
 	);
