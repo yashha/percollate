@@ -297,7 +297,7 @@ async function bundleEpub(items, options) {
 	};
 
 	// eslint-disable-next-line no-new
-	new Epub(option, outputPath);
+	await new Epub(option, outputPath).promise;
 
 	spinner.succeed(`Saved EPUB: ${outputPath}`);
 }
