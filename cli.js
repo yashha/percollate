@@ -65,6 +65,10 @@ Examples:
 
     percollate pdf --output my.pdf https://example.com/1 https://example.com/2
   
+  Instead of an url you can provide a path to a file
+
+    percollate pdf --output my.pdf ./example.html
+
   Custom page size and font size:
     
     percollate pdf --output my.pdf --css "@page { size: A3 landscape } html { font-size: 18pt }" https://example.com

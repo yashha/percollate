@@ -51,8 +51,19 @@ function enhancePage(dom) {
 	});
 }
 
+const stringIsAValidUrl = string => {
+	try {
+		return Boolean(new URL(string));
+	} catch (e) {
+		return false;
+	}
+};
+
 function createDom({ url, content }) {
-	const dom = new JSDOM(content, { url });
+	// When you process a local file there may be no url
+	const dom = stringIsAValidUrl(url)
+		? new JSDOM(content, { url })
+		: new JSDOM(content);
 
 	// Force relative URL resolution
 	dom.window.document.body.setAttribute(null, null);
@@ -79,28 +90,39 @@ function configure() {
 	nunjucks.configure({ autoescape: false, noCache: true });
 }
 
+async function fetchUrl(url) {
+	spinner.start(`Fetching: ${url}`);
+	/*
+		Must ensure that the URL is properly encoded.
+		See: https://github.com/danburzo/percollate/pull/83
+	 */
+	const content = (
+		await got(encodeURI(decodeURI(url)), {
+			headers: {
+				'user-agent': `percollate/${pkg.version}`
+			}
+		})
+	).body;
+	spinner.succeed();
+	return content;
+}
+
 /*
 	Fetch a web page and clean the HTML
 	-----------------------------------
  */
 async function cleanup(url, options) {
 	try {
-		spinner.start(`Fetching: ${url}`);
-		/*
-			Must ensure that the URL is properly encoded.
-			See: https://github.com/danburzo/percollate/pull/83
-		 */
-		const content = (
-			await got(encodeURI(decodeURI(url)), {
-				headers: {
-					'user-agent': `percollate/${pkg.version}`
-				}
-			})
-		).body;
-		spinner.succeed();
+		let content = '';
+		const validatedUrl = stringIsAValidUrl(url) ? url : null;
+		if (stringIsAValidUrl(url)) {
+			content = await fetchUrl(url);
+		} else {
+			content = await fs.promises.readFile(url, 'utf8');
+		}
 
 		spinner.start('Enhancing web page');
-		const dom = createDom({ url, content });
+		const dom = createDom({ url: validatedUrl, content });
 
 		const amp = dom.window.document.querySelector('link[rel=amphtml]');
 		if (amp && options.amp) {
@@ -128,7 +150,11 @@ async function cleanup(url, options) {
 		}).parse();
 
 		spinner.succeed();
-		return { ...parsed, id: `percollate-page-${uuid()}`, url };
+		return {
+			...parsed,
+			id: `percollate-page-${uuid()}`,
+			parsedUrl: validatedUrl
+		};
 	} catch (error) {
 		spinner.fail(error.message);
 		throw error;
