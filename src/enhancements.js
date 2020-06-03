@@ -123,6 +123,10 @@ function noUselessHref(doc) {
  */
 function relativeToAbsoluteURIs(doc) {
 	function absoluteSrcset(str) {
+		// When you process a local file there may be no url
+		if (!doc.baseURI) {
+			return str;
+		}
 		return srcset.stringify(
 			srcset.parse(str).map(item => ({
 				...item,
