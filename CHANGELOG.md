@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+Enhancement: Added option to process local html files ([#11(https://github.com/yashha/percollate/pull/11))
+
 Chore:
 
 -   updated deps
