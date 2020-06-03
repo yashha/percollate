@@ -95,6 +95,12 @@ To bundle _several_ web pages into a single PDF, specify them as separate argume
 percollate pdf --output some.pdf https://example.com/page1 https://example.com/page2
 ```
 
+Instead of an url you can provide a path to a file
+
+```bash
+percollate pdf --output my.pdf ./example.html
+```
+
 You can use common Unix commands and keep the list of URLs in a newline-delimited text file:
 
 ```bash
