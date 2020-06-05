@@ -30,11 +30,6 @@ const {
 } = require('./src/enhancements');
 const getStyleAttributeValue = require('./src/get-style-attribute-value');
 
-const resolve = path =>
-	require.resolve(path, {
-		paths: [process.cwd(), __dirname]
-	});
-
 function enhancePage(dom) {
 	// Note: the order of the enhancements matters!
 	[
@@ -169,16 +164,13 @@ async function bundlePdf(items, options) {
 	spinner.start('Generating temporary HTML file');
 	const tempFile = tmp.tmpNameSync({ postfix: '.html' });
 
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = options.style || './templates/default.css';
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 	const useToc = options.toc && items.length > 1;
 	const lang = textToLang(items[0].textContent);
 
 	const renderedHtml = nunjucks.renderString(
-		fs.readFileSync(
-			resolve(options.template || './templates/default.html'),
-			'utf8'
-		),
+		fs.readFileSync(options.template || './templates/default.html', 'utf8'),
 		{
 			items,
 			style,
@@ -298,14 +290,11 @@ async function bundlePdf(items, options) {
 	--------------------------------
  */
 async function bundleEpub(items, options) {
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = options.style || './templates/default.css';
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
 	const renderedHtml = nunjucks.renderString(
-		fs.readFileSync(
-			resolve(options.template || './templates/default.html'),
-			'utf8'
-		),
+		fs.readFileSync(options.template || './templates/default.html', 'utf8'),
 		{
 			items,
 			style,
@@ -348,15 +337,12 @@ async function bundleEpub(items, options) {
 	--------------------------------
  */
 async function bundleHtml(items, options) {
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = options.style || './templates/default.css';
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 	const lang = textToLang(items[0].textContent);
 
 	const renderedHtml = nunjucks.renderString(
-		fs.readFileSync(
-			resolve(options.template || './templates/default.html'),
-			'utf8'
-		),
+		fs.readFileSync(options.template || './templates/default.html', 'utf8'),
 		{
 			items,
 			style,
@@ -395,12 +381,12 @@ async function bundleHtml(items, options) {
 	--------------------------------
  */
 async function bundleMd(items, options) {
-	const stylesheet = resolve(options.style || './templates/default.css');
+	const stylesheet = options.style || './templates/default.css';
 	const style = fs.readFileSync(stylesheet, 'utf8') + (options.css || '');
 
 	const renderedHtml = nunjucks.renderString(
 		fs.readFileSync(
-			resolve(options.template || './templates/markdown.html'),
+			options.template || './templates/markdown.html',
 			'utf8'
 		),
 		{
