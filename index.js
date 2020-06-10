@@ -264,7 +264,7 @@ async function bundlePdf(items, options) {
 		});
 	}
 
-	await page.goto(`file://${tempFile}`, { waitUntil: 'load' });
+	await page.goto(`file://${tempFile}`, { waitUntil: 'networkidle2' });
 
 	/*
 		When no output path is present,
