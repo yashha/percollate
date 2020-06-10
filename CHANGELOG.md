@@ -2,7 +2,11 @@
 
 ### 0.7.1
 
--   Update deps
+-   fixed bug that prevented url from showing on the top of a pdf
+
+### 0.7.1
+
+-   updated deps
 
 ### 0.7.0
 
