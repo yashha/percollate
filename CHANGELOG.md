@@ -1,6 +1,6 @@
 # Percollate Changelog
 
-### unreleased
+### 0.7.1
 
 -   Update deps
 
