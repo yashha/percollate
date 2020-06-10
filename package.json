@@ -6,21 +6,21 @@
 	"repository": "yashha/percollate",
 	"license": "MIT",
 	"dependencies": {
-		"commander": "^4.1.1",
+		"commander": "^5.1.0",
 		"css": "^2.2.4",
 		"epub-gen": "^0.1.0",
 		"franc-all": "^6.0.0",
-		"got": "^10.6.0",
-		"iso-639-3": "^2.0.0",
-		"jsdom": "^16.2.0",
-		"nunjucks": "^3.2.0",
-		"ora": "^4.0.3",
-		"puppeteer": "^2.1.1",
-		"slugify": "^1.3.6",
+		"got": "^11.3.0",
+		"iso-639-3": "^2.1.0",
+		"jsdom": "^16.2.2",
+		"nunjucks": "^3.2.1",
+		"ora": "^4.0.4",
+		"puppeteer": "^3.3.0",
+		"slugify": "^1.4.0",
 		"srcset": "^2.0.1",
-		"tmp": "^0.1.0",
-		"turndown": "^5.0.3",
-		"uuid": "^3.4.0"
+		"tmp": "^0.2.1",
+		"turndown": "^6.0.0",
+		"uuid": "^8.1.0"
 	},
 	"bin": {
 		"percollate": "./cli.js"
