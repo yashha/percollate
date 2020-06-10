@@ -1,5 +1,9 @@
 # Percollate Changelog
 
+### unreleased
+
+-   Update deps
+
 ### 0.7.0
 
 Enhancement: Added option to process local html files ([#11(https://github.com/yashha/percollate/pull/11))
