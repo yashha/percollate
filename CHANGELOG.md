@@ -1,5 +1,9 @@
 # Percollate Changelog
 
+### 0.7.3
+
+-   allow webfont usage in css
+
 ### 0.7.2
 
 -   fixed bug that prevented url from showing on the top of a pdf
