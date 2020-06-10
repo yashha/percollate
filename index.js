@@ -153,7 +153,7 @@ async function cleanup(url, options) {
 		return {
 			...parsed,
 			id: `percollate-page-${uuid()}`,
-			parsedUrl: validatedUrl
+			url: validatedUrl
 		};
 	} catch (error) {
 		spinner.fail(error.message);
